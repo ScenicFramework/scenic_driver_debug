@@ -26,3 +26,4 @@ scenic_driver_nerves-*.tar
 /tmp/
 
 .DS_Store
+.vscode
