@@ -1,7 +1,7 @@
-defmodule Scenic.Driver.Local.MixProject do
+defmodule Scenic.Driver.Debug.MixProject do
   use Mix.Project
 
-  @app_name :scenic_driver_local
+  @app_name :scenic_driver_debug
   @version "0.11.0"
   @github "https://github.com/ScenicFramework/scenic_driver_local"
 
@@ -58,7 +58,7 @@ defmodule Scenic.Driver.Local.MixProject do
 
   defp description() do
     """
-    Scenic.Driver.Local - Scenic driver for locally rendered devices
+    Scenic.Driver.Debug - Scenic driver for debugging scripts.
     """
   end
 
@@ -80,7 +80,7 @@ defmodule Scenic.Driver.Local.MixProject do
   end
 
   defp compilers(nil) do
-    Mix.compilers() ++ [:scenic_driver_local, :elixir_make]
+    Mix.compilers() ++ [:scenic_driver_debug, :elixir_make]
   end
 
   defp compilers(_publish) do
@@ -90,8 +90,8 @@ defmodule Scenic.Driver.Local.MixProject do
   defp package do
     [
       name: @app_name,
-      contributors: ["Boyd Multerer"],
-      maintainers: ["Boyd Multerer"],
+      contributors: ["Chris Ertel"],
+      maintainers: [],
       licenses: ["Apache-2.0"],
       links: %{Github: @github},
       files: [

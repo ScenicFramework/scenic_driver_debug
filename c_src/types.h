@@ -14,58 +14,51 @@
 
 #include <stdint.h>
 
-
-#ifndef NANOVG_H
-#include "nanovg/nanovg.h"
-#endif
-
-
 #ifndef PACK
-  #ifdef _MSC_VER
-    #define PACK( __Declaration__ ) \
-        __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop) )
-  #elif defined(__GNUC__)
-    #define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
-  #endif
+#ifdef _MSC_VER
+#define PACK(__Declaration__) \
+  __pragma(pack(push, 1)) __Declaration__ __pragma(pack(pop))
+#elif defined(__GNUC__)
+#define PACK(__Declaration__) __Declaration__ __attribute__((__packed__))
+#endif
 #endif
 
 typedef unsigned char byte;
 
 //---------------------------------------------------------
-PACK(typedef struct Vector2f
-{
+PACK(typedef struct Vector2f {
   float x;
   float y;
-}) Vector2f;
-
+})
+Vector2f;
 
 //---------------------------------------------------------
 // the data pointed to by the window private data pointer
-typedef struct {
-  bool              keep_going;
-  uint32_t          input_flags;
-  float             last_x;
-  float             last_y;
-  int               root_script;
-  void*             p_tx_ids;
-  void*             p_fonts;
-  NVGcontext*       p_ctx;
-  float           global_tx[6];
-  float           cursor_tx[6];
-  float           cursor_pos[2];
-  uint32_t          f_show_cursor;
+typedef struct
+{
+  bool keep_going;
+  uint32_t input_flags;
+  float last_x;
+  float last_y;
+  int root_script;
+  void *p_tx_ids;
+  void *p_fonts;
+  float global_tx[6];
+  float cursor_tx[6];
+  float cursor_pos[2];
+  uint32_t f_show_cursor;
 } driver_data_t;
 
-
-typedef struct {
+typedef struct
+{
   // internal data tracking
   int width;
   int height;
   float ratio;
-  NVGcontext* p_ctx;
 } device_info_t;
 
-typedef struct {
+typedef struct
+{
   // options from the command line
   int debug_mode;
   int layer;
@@ -75,15 +68,16 @@ typedef struct {
   int width;
   int height;
   int resizable;
-  char* title;
+  char *title;
 } device_opts_t;
 
 //---------------------------------------------------------
 // combination of a size and location. Do NOT assume the
 // p_data can be free'd. It is usually in a larger block
 // that was the thing that was allocated.
-typedef struct _data_t {
-  void* p_data;
+typedef struct _data_t
+{
+  void *p_data;
   uint32_t size;
 } data_t;
 

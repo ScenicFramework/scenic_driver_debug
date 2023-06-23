@@ -18,7 +18,6 @@ The caller will typically be erlang, so use the 2-byte length indicator
 #include "utils.h"
 #include "device/device.h"
 
-
 #define MSG_OUT_CLOSE 0x00
 #define MSG_OUT_STATS 0x01
 #define MSG_OUT_PUTS 0x02
@@ -48,16 +47,14 @@ The caller will typically be erlang, so use the 2-byte length indicator
 #define MSG_OUT_WARN 0xA1
 #define MSG_OUT_ERROR 0xA2
 
-
-
-#define CMD_PUT_SCRIPT    0x01
-#define CMD_DEL_SCRIPT    0x02
-#define CMD_RESET         0x03
-#define CMD_GLOBAL_TX     0x04
-#define CMD_CURSOR_TX     0x05
-#define CMD_RENDER        0x06
+#define CMD_PUT_SCRIPT 0x01
+#define CMD_DEL_SCRIPT 0x02
+#define CMD_RESET 0x03
+#define CMD_GLOBAL_TX 0x04
+#define CMD_CURSOR_TX 0x05
+#define CMD_RENDER 0x06
 #define CMD_UPDATE_CURSOR 0x07
-#define CMD_CLEAR_COLOR   0x08
+#define CMD_CLEAR_COLOR 0x08
 
 #define CMD_INPUT 0x0A
 
@@ -65,7 +62,6 @@ The caller will typically be erlang, so use the 2-byte length indicator
 
 #define CMD_PUT_FONT 0x40
 #define CMD_PUT_IMG 0x41
-
 
 // #define CMD_QUERY_STATS 0x21
 // #define CMD_RESHAPE 0x22
@@ -105,7 +101,6 @@ The caller will typically be erlang, so use the 2-byte length indicator
 
 extern device_info_t g_device_info;
 
-
 //=============================================================================
 // raw comms with host app
 // from erl_comm.c
@@ -113,7 +108,7 @@ extern device_info_t g_device_info;
 
 //---------------------------------------------------------
 // the length indicator from erlang is always big-endian
-int write_cmd(byte* buf, unsigned int len)
+int write_cmd(byte *buf, unsigned int len)
 {
   int written = 0;
 
@@ -122,14 +117,14 @@ int write_cmd(byte* buf, unsigned int len)
   // if ( pthread_rwlock_wrlock(&comms_out_lock) == 0 ) {
   uint32_t cmd_len = len;
   cmd_len = hton_ui32(cmd_len);
-  write_exact((byte*) &cmd_len, sizeof(uint32_t));
+  write_exact((byte *)&cmd_len, sizeof(uint32_t));
   written = write_exact(buf, len);
 
   return written;
 }
 
 //---------------------------------------------------------
-bool read_bytes_down(void* p_buff, int bytes_to_read, int* p_bytes_to_remaining)
+bool read_bytes_down(void *p_buff, int bytes_to_read, int *p_bytes_to_remaining)
 {
   if (p_bytes_to_remaining <= 0)
     return false;
@@ -153,399 +148,302 @@ bool read_bytes_down(void* p_buff, int bytes_to_read, int* p_bytes_to_remaining)
 // send messages up to caller
 
 //---------------------------------------------------------
-void send_puts(const char* msg)
+void send_puts(const char *msg)
 {
   uint32_t msg_len = strlen(msg);
   uint32_t cmd_len = msg_len + sizeof(uint32_t);
-  uint32_t cmd     = MSG_OUT_PUTS;
+  uint32_t cmd = MSG_OUT_PUTS;
 
   cmd_len = ntoh_ui32(cmd_len);
 
-  write_exact((byte*) &cmd_len, sizeof(uint32_t));
-  write_exact((byte*) &cmd, sizeof(uint32_t));
-  write_exact((byte*) msg, msg_len);
+  write_exact((byte *)&cmd_len, sizeof(uint32_t));
+  write_exact((byte *)&cmd, sizeof(uint32_t));
+  write_exact((byte *)msg, msg_len);
 }
 
 //---------------------------------------------------------
-void log_info(const char* msg)
+void log_info(const char *msg)
 {
   uint32_t msg_len = strlen(msg);
   uint32_t cmd_len = msg_len + sizeof(uint32_t);
-  uint32_t cmd     = MSG_OUT_INFO;
+  uint32_t cmd = MSG_OUT_INFO;
 
   cmd_len = ntoh_ui32(cmd_len);
 
-  write_exact((byte*) &cmd_len, sizeof(uint32_t));
-  write_exact((byte*) &cmd, sizeof(uint32_t));
-  write_exact((byte*) msg, msg_len);
+  write_exact((byte *)&cmd_len, sizeof(uint32_t));
+  write_exact((byte *)&cmd, sizeof(uint32_t));
+  write_exact((byte *)msg, msg_len);
 }
 
 //---------------------------------------------------------
-void log_warn(const char* msg)
+void log_warn(const char *msg)
 {
   uint32_t msg_len = strlen(msg);
   uint32_t cmd_len = msg_len + sizeof(uint32_t);
-  uint32_t cmd     = MSG_OUT_WARN;
+  uint32_t cmd = MSG_OUT_WARN;
 
   cmd_len = ntoh_ui32(cmd_len);
 
-  write_exact((byte*) &cmd_len, sizeof(uint32_t));
-  write_exact((byte*) &cmd, sizeof(uint32_t));
-  write_exact((byte*) msg, msg_len);
+  write_exact((byte *)&cmd_len, sizeof(uint32_t));
+  write_exact((byte *)&cmd, sizeof(uint32_t));
+  write_exact((byte *)msg, msg_len);
 }
 
 //---------------------------------------------------------
-void log_error(const char* msg)
+void log_error(const char *msg)
 {
   uint32_t msg_len = strlen(msg);
   uint32_t cmd_len = msg_len + sizeof(uint32_t);
-  uint32_t cmd     = MSG_OUT_ERROR;
+  uint32_t cmd = MSG_OUT_ERROR;
 
   cmd_len = ntoh_ui32(cmd_len);
 
-  write_exact((byte*) &cmd_len, sizeof(uint32_t));
-  write_exact((byte*) &cmd, sizeof(uint32_t));
-  write_exact((byte*) msg, msg_len);
+  write_exact((byte *)&cmd_len, sizeof(uint32_t));
+  write_exact((byte *)&cmd, sizeof(uint32_t));
+  write_exact((byte *)msg, msg_len);
 }
 
-
-
-
-
 //---------------------------------------------------------
-void put_sp( const char* msg, void* p ) {
+void put_sp(const char *msg, void *p)
+{
   char buff[400];
   sprintf(buff, "%s %p", msg, p);
   send_puts(buff);
 }
 
 //---------------------------------------------------------
-void put_sn( const char* msg, int n ) {
+void put_sn(const char *msg, int n)
+{
   char buff[400];
   sprintf(buff, "%s %d", msg, n);
   send_puts(buff);
 }
 
 //---------------------------------------------------------
-void put_sf( const char* msg, float f ) {
+void put_sf(const char *msg, float f)
+{
   char buff[400];
   sprintf(buff, "%s %f", msg, f);
   send_puts(buff);
 }
 
-
-
 //---------------------------------------------------------
-void send_write(const char* msg)
+void send_write(const char *msg)
 {
   uint32_t msg_len = strlen(msg);
   uint32_t cmd_len = msg_len + sizeof(uint32_t);
-  uint32_t cmd     = MSG_OUT_WRITE;
+  uint32_t cmd = MSG_OUT_WRITE;
 
   cmd_len = ntoh_ui32(cmd_len);
 
-  write_exact((byte*) &cmd_len, sizeof(uint32_t));
-  write_exact((byte*) &cmd, sizeof(uint32_t));
-  write_exact((byte*) msg, msg_len);
+  write_exact((byte *)&cmd_len, sizeof(uint32_t));
+  write_exact((byte *)&cmd, sizeof(uint32_t));
+  write_exact((byte *)msg, msg_len);
 }
 
 //---------------------------------------------------------
-void send_inspect(void* data, int length)
+void send_inspect(void *data, int length)
 {
   uint32_t cmd_len = length + sizeof(uint32_t);
-  uint32_t cmd     = MSG_OUT_INSPECT;
+  uint32_t cmd = MSG_OUT_INSPECT;
 
   ntoh_ui32(cmd_len);
 
-  write_exact((byte*) &cmd_len, sizeof(uint32_t));
-  write_exact((byte*) &cmd, sizeof(uint32_t));
+  write_exact((byte *)&cmd_len, sizeof(uint32_t));
+  write_exact((byte *)&cmd, sizeof(uint32_t));
   write_exact(data, length);
 }
 
 //---------------------------------------------------------
-void send_static_texture_miss(const char* key)
+void send_static_texture_miss(const char *key)
 {
   uint32_t msg_len = strlen(key);
   uint32_t cmd_len = msg_len + sizeof(uint32_t);
-  uint32_t cmd     = MSG_OUT_STATIC_TEXTURE_MISS;
+  uint32_t cmd = MSG_OUT_STATIC_TEXTURE_MISS;
 
   ntoh_ui32(cmd_len);
 
-  write_exact((byte*) &cmd_len, sizeof(uint32_t));
-  write_exact((byte*) &cmd, sizeof(uint32_t));
-  write_exact((byte*) key, msg_len);
+  write_exact((byte *)&cmd_len, sizeof(uint32_t));
+  write_exact((byte *)&cmd, sizeof(uint32_t));
+  write_exact((byte *)key, msg_len);
 }
 
 //---------------------------------------------------------
-void send_dynamic_texture_miss(const char* key)
+void send_dynamic_texture_miss(const char *key)
 {
   uint32_t msg_len = strlen(key);
   uint32_t cmd_len = msg_len + sizeof(uint32_t);
-  uint32_t cmd     = MSG_OUT_DYNAMIC_TEXTURE_MISS;
+  uint32_t cmd = MSG_OUT_DYNAMIC_TEXTURE_MISS;
 
   ntoh_ui32(cmd_len);
 
-  write_exact((byte*) &cmd_len, sizeof(uint32_t));
-  write_exact((byte*) &cmd, sizeof(uint32_t));
-  write_exact((byte*) key, msg_len);
+  write_exact((byte *)&cmd_len, sizeof(uint32_t));
+  write_exact((byte *)&cmd, sizeof(uint32_t));
+  write_exact((byte *)key, msg_len);
 }
 
 //---------------------------------------------------------
-void send_font_miss(const char* key)
+void send_font_miss(const char *key)
 {
   uint32_t msg_len = strlen(key);
   uint32_t cmd_len = msg_len + sizeof(uint32_t);
-  uint32_t cmd     = MSG_OUT_FONT_MISS;
+  uint32_t cmd = MSG_OUT_FONT_MISS;
 
   ntoh_ui32(cmd_len);
 
-  write_exact((byte*) &cmd_len, sizeof(uint32_t));
-  write_exact((byte*) &cmd, sizeof(uint32_t));
-  write_exact((byte*) key, msg_len);
+  write_exact((byte *)&cmd_len, sizeof(uint32_t));
+  write_exact((byte *)&cmd, sizeof(uint32_t));
+  write_exact((byte *)key, msg_len);
 }
 
 //---------------------------------------------------------
-PACK(typedef struct msg_reshape_t
-{
+PACK(typedef struct msg_reshape_t {
   uint32_t msg_id;
   uint32_t window_width;
   uint32_t window_height;
-}) msg_reshape_t;
+})
+msg_reshape_t;
 
-void send_reshape( int window_width, int window_height )
+void send_reshape(int window_width, int window_height)
 {
-  msg_reshape_t msg = { MSG_OUT_RESHAPE, window_width, window_height };
-  write_cmd((byte*) &msg, sizeof(msg_reshape_t));
+  msg_reshape_t msg = {MSG_OUT_RESHAPE, window_width, window_height};
+  write_cmd((byte *)&msg, sizeof(msg_reshape_t));
 }
 
 //---------------------------------------------------------
-PACK(typedef struct msg_key_t
-{
+PACK(typedef struct msg_key_t {
   uint32_t msg_id;
   uint32_t key;
   uint32_t scancode;
   uint32_t action;
   uint32_t mods;
-}) msg_key_t;
+})
+msg_key_t;
 
 void send_key(int key, int scancode, int action, int mods)
 {
   msg_key_t msg = {MSG_OUT_KEY, key, scancode, action, mods};
-  write_cmd((byte*) &msg, sizeof(msg_key_t));
+  write_cmd((byte *)&msg, sizeof(msg_key_t));
 }
 
 //---------------------------------------------------------
-PACK(typedef struct msg_codepoint_t
-{
+PACK(typedef struct msg_codepoint_t {
   uint32_t msg_id;
   uint32_t codepoint;
   uint32_t mods;
-}) msg_codepoint_t;
+})
+msg_codepoint_t;
 
 void send_codepoint(unsigned int codepoint, int mods)
 {
   msg_codepoint_t msg = {MSG_OUT_CODEPOINT, codepoint, mods};
-  write_cmd((byte*) &msg, sizeof(msg_codepoint_t));
+  write_cmd((byte *)&msg, sizeof(msg_codepoint_t));
 }
 
 //---------------------------------------------------------
-PACK(typedef struct msg_cursor_pos_t
-{
+PACK(typedef struct msg_cursor_pos_t {
   uint32_t msg_id;
-  float    x;
-  float    y;
-}) msg_cursor_pos_t;
+  float x;
+  float y;
+})
+msg_cursor_pos_t;
 
 void send_cursor_pos(float xpos, float ypos)
 {
   msg_cursor_pos_t msg = {MSG_OUT_CURSOR_POS, xpos, ypos};
-  write_cmd((byte*) &msg, sizeof(msg_cursor_pos_t));
+  write_cmd((byte *)&msg, sizeof(msg_cursor_pos_t));
 }
 
 //---------------------------------------------------------
-PACK(typedef struct msg_mouse_button_t
-{
+PACK(typedef struct msg_mouse_button_t {
   uint32_t msg_id;
   uint32_t button;
   uint32_t action;
   uint32_t mods;
-  float    xpos;
-  float    ypos;
-}) msg_mouse_button_t;
+  float xpos;
+  float ypos;
+})
+msg_mouse_button_t;
 
 void send_mouse_button(int button, int action, int mods, float xpos, float ypos)
 {
   msg_mouse_button_t msg = {
-    MSG_OUT_MOUSE_BUTTON,
-    button,
-    action,
-    mods,
-    xpos,
-    ypos
-  };
-  write_cmd((byte*) &msg, sizeof(msg_mouse_button_t));
+      MSG_OUT_MOUSE_BUTTON,
+      button,
+      action,
+      mods,
+      xpos,
+      ypos};
+  write_cmd((byte *)&msg, sizeof(msg_mouse_button_t));
 }
-  // #define hton_ui16(x) (ntoh_ui16(x))
-  // #define hton_ui32(x) (ntoh_ui32(x))
-  // #define hton_f32(x) (ntoh_f32(x))
+// #define hton_ui16(x) (ntoh_ui16(x))
+// #define hton_ui32(x) (ntoh_ui32(x))
+// #define hton_f32(x) (ntoh_f32(x))
 
 //---------------------------------------------------------
-PACK(typedef struct msg_scroll_t
-{
+PACK(typedef struct msg_scroll_t {
   uint32_t msg_id;
-  float    x_offset;
-  float    y_offset;
-  float    x;
-  float    y;
-}) msg_scroll_t;
+  float x_offset;
+  float y_offset;
+  float x;
+  float y;
+})
+msg_scroll_t;
 
 void send_scroll(float xoffset, float yoffset, float xpos, float ypos)
 {
   msg_scroll_t msg = {MSG_OUT_MOUSE_SCROLL, xoffset, yoffset, xpos, ypos};
-  write_cmd((byte*) &msg, sizeof(msg_scroll_t));
+  write_cmd((byte *)&msg, sizeof(msg_scroll_t));
 }
 
 //---------------------------------------------------------
-PACK(typedef struct msg_cursor_enter_t
-{
+PACK(typedef struct msg_cursor_enter_t {
   uint32_t msg_id;
-  int32_t  entered;
-  float    x;
-  float    y;
-}) msg_cursor_enter_t;
+  int32_t entered;
+  float x;
+  float y;
+})
+msg_cursor_enter_t;
 
 void send_cursor_enter(int entered, float xpos, float ypos)
 {
   msg_cursor_enter_t msg = {MSG_OUT_CURSOR_ENTER, entered, xpos, ypos};
-  write_cmd((byte*) &msg, sizeof(msg_cursor_enter_t));
+  write_cmd((byte *)&msg, sizeof(msg_cursor_enter_t));
 }
 
 //---------------------------------------------------------
-PACK(typedef struct msg_close_t
-{
+PACK(typedef struct msg_close_t {
   uint32_t msg_id;
   uint32_t reaspn;
-}) msg_close_t;
-void send_close( int reason )
+})
+msg_close_t;
+void send_close(int reason)
 {
-  msg_close_t msg = { MSG_OUT_CLOSE, reason };
-  write_cmd((byte*) &msg, sizeof(msg_close_t));
+  msg_close_t msg = {MSG_OUT_CLOSE, reason};
+  write_cmd((byte *)&msg, sizeof(msg_close_t));
 }
 
 //---------------------------------------------------------
-PACK(typedef struct img_miss_t
-{
+PACK(typedef struct img_miss_t {
   uint32_t msg_id;
   uint32_t img_id;
-}) img_miss_t;
-void send_image_miss( unsigned int img_id )
+})
+img_miss_t;
+void send_image_miss(unsigned int img_id)
 {
-  img_miss_t msg = { MSG_IMG_MISS, img_id };
-  write_cmd((byte*) &msg, sizeof(img_miss_t));
+  img_miss_t msg = {MSG_IMG_MISS, img_id};
+  write_cmd((byte *)&msg, sizeof(img_miss_t));
 }
 
 //---------------------------------------------------------
 void send_ready()
 {
   uint32_t msg_id = MSG_OUT_READY;
-  write_cmd((byte*) &msg_id, sizeof(msg_id));
-}
-
-// //---------------------------------------------------------
-// PACK(typedef struct msg_draw_ready_t
-// {
-//   uint32_t msg_id;
-//   uint32_t id;
-// }) msg_draw_ready_t;
-
-// void send_draw_ready(unsigned int id)
-// {
-//   msg_ready_t msg = {MSG_OUT_DRAW_READY, id};
-//   write_cmd((byte*) &msg, sizeof(msg_draw_ready_t));
-// }
-
-//=============================================================================
-// incoming messages
-/*
-//---------------------------------------------------------
-PACK(typedef struct msg_stats_t
-{
-  uint32_t msg_id;
-  uint32_t input_flags;
-  int      xpos;
-  int      ypos;
-  int      width;
-  int      height;
-  bool     focused;
-  bool     resizable;
-  bool     iconified;
-  bool     maximized;
-  bool     visible;
-}) msg_stats_t;
-void receive_query_stats(GLFWwindow* window)
-{
-  msg_stats_t    msg;
-  int            a, b;
-  window_data_t* p_window_data = glfwGetWindowUserPointer(window);
-
-  msg.msg_id      = MSG_OUT_STATS;
-  msg.input_flags = p_window_data->input_flags;
-
-  // can't point into packed structure...
-  glfwGetWindowPos(window, &a, &b);
-  msg.xpos = a;
-  msg.ypos = b;
-
-  // can't point into packed structure...
-  glfwGetWindowSize(window, &a, &b);
-  msg.width  = a;
-  msg.height = b;
-
-  msg.focused   = glfwGetWindowAttrib(window, GLFW_FOCUSED);
-  msg.resizable = glfwGetWindowAttrib(window, GLFW_RESIZABLE);
-  msg.iconified = glfwGetWindowAttrib(window, GLFW_ICONIFIED);
-  msg.maximized = false;
-  msg.visible   = glfwGetWindowAttrib(window, GLFW_VISIBLE);
-
-  write_cmd((byte*) &msg, sizeof(msg_stats_t));
+  write_cmd((byte *)&msg_id, sizeof(msg_id));
 }
 
 //---------------------------------------------------------
-void receive_input(int* p_msg_length, GLFWwindow* window)
-{
-  window_data_t* p_window_data = glfwGetWindowUserPointer(window);
-  read_bytes_down(&p_window_data->input_flags, sizeof(uint32_t), p_msg_length);
-}
-
-//---------------------------------------------------------
-PACK(typedef struct cmd_move_t
-{
-  int32_t x_w;
-  int32_t y_h;
-}) cmd_move_t;
-void receive_reshape(int* p_msg_length, GLFWwindow* window)
-{
-  cmd_move_t move_data;
-  if (read_bytes_down(&move_data, sizeof(cmd_move_t), p_msg_length))
-  {
-    // act on the data
-    glfwSetWindowSize(window, move_data.x_w, move_data.y_h);
-  }
-}
-
-//---------------------------------------------------------
-void receive_position(int* p_msg_length, GLFWwindow* window)
-{
-  cmd_move_t move_data;
-  if (read_bytes_down(&move_data, sizeof(cmd_move_t), p_msg_length))
-  {
-    // act on the data
-    glfwSetWindowPos(window, move_data.x_w, move_data.y_h);
-  }
-}
-*/
-//---------------------------------------------------------
-void receive_quit(driver_data_t* p_data)
+void receive_quit(driver_data_t *p_data)
 {
   // clear the keep_going control flag, this ends the main thread loop
   p_data->keep_going = false;
@@ -558,14 +456,9 @@ void receive_crash()
   exit(EXIT_FAILURE);
 }
 
-
 //---------------------------------------------------------
-void render( driver_data_t* p_data )
+void render(driver_data_t *p_data)
 {
-  NVGcontext* p_ctx = p_data->p_ctx;
-
-// log_info("------ rendering ------");
-
   // prep the id to the root scene
   sid_t id;
   id.p_data = "_root_";
@@ -576,167 +469,155 @@ void render( driver_data_t* p_data )
   // render the scene
   device_begin_render();
 
-  nvgBeginFrame( p_ctx, g_device_info.width, g_device_info.height, g_device_info.ratio );
-
   // set the global transform
-  nvgTransform(
-    p_ctx,
-    p_data->global_tx[0], p_data->global_tx[1], 
-    p_data->global_tx[2], p_data->global_tx[3],
-    p_data->global_tx[4], p_data->global_tx[5]
-  );
+  LOG("Comms: set global transform\n");
+  LOG("|      %f %f\n", p_data->global_tx[0], p_data->global_tx[1]);
+  LOG("|      %f %f\n", p_data->global_tx[2], p_data->global_tx[3]);
+  LOG("|      %f %f\n", p_data->global_tx[4], p_data->global_tx[5]);
 
   // render the root script
-  render_script( id, p_ctx );
+  LOG("Comms: render root script\n");
+  render_script(id);
 
   // render the cursor if one is provided
-  if ( p_data->f_show_cursor ) {
-    nvgTranslate( p_ctx, p_data->cursor_pos[0], p_data->cursor_pos[1] );
+  if (p_data->f_show_cursor)
+  {
+    LOG("Comms: setting cursor position %f %f\n", p_data->cursor_pos[0], p_data->cursor_pos[1]);
 
+    LOG("Comms: render cursor script\n");
     id.p_data = "_cursor_";
     id.size = strlen(id.p_data);
-    render_script( id, p_ctx );
+    render_script(id);
   }
 
   // End frame and swap front and back buffers
-// time = get_time_stamp();
-  nvgEndFrame( p_ctx );
-// put_sn("nvgEndFrame: ", get_time_stamp() - time );
-
-
-  // device_swap_buffers();
-// time = get_time_stamp();
   device_end_render();
-// put_sn("device_end_render: ", get_time_stamp() - time );
 
   // all done
   send_ready();
 }
 
-
 //---------------------------------------------------------
-void render_cursor( driver_data_t* p_data ) {
-  render( p_data );
+void render_cursor(driver_data_t *p_data)
+{
+  render(p_data);
 }
 
 //---------------------------------------------------------
-void set_global_tx( int* p_msg_length, driver_data_t* p_data ) {
-  for ( int i = 0; i < 6; i++ ) {
-    read_bytes_down( &p_data->global_tx[i], sizeof(float), p_msg_length );
+void set_global_tx(int *p_msg_length, driver_data_t *p_data)
+{
+  for (int i = 0; i < 6; i++)
+  {
+    read_bytes_down(&p_data->global_tx[i], sizeof(float), p_msg_length);
   }
 }
 
 //---------------------------------------------------------
-void set_cursor_tx( int* p_msg_length, driver_data_t* p_data ) {
-  for ( int i = 0; i < 6; i++ ) {
-    read_bytes_down( &p_data->cursor_tx[i], sizeof(float), p_msg_length );
+void set_cursor_tx(int *p_msg_length, driver_data_t *p_data)
+{
+  for (int i = 0; i < 6; i++)
+  {
+    read_bytes_down(&p_data->cursor_tx[i], sizeof(float), p_msg_length);
   }
 }
 
 //---------------------------------------------------------
-void update_cursor( int* p_msg_length, driver_data_t* p_data ) {
-  read_bytes_down( &p_data->f_show_cursor, sizeof(uint32_t), p_msg_length );
-  for ( int i = 0; i < 2; i++ ) {
-    read_bytes_down( &p_data->cursor_pos[i], sizeof(float), p_msg_length );
+void update_cursor(int *p_msg_length, driver_data_t *p_data)
+{
+  read_bytes_down(&p_data->f_show_cursor, sizeof(uint32_t), p_msg_length);
+  for (int i = 0; i < 2; i++)
+  {
+    read_bytes_down(&p_data->cursor_pos[i], sizeof(float), p_msg_length);
   }
 }
 
 //---------------------------------------------------------
-void clear_color( int* p_msg_length ) {
+void clear_color(int *p_msg_length)
+{
   byte r, g, b, a;
-  read_bytes_down( &r, 1, p_msg_length );
-  read_bytes_down( &g, 1, p_msg_length );
-  read_bytes_down( &b, 1, p_msg_length );
-  read_bytes_down( &a, 1, p_msg_length );
-  device_clear_color( r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f );
+  read_bytes_down(&r, 1, p_msg_length);
+  read_bytes_down(&g, 1, p_msg_length);
+  read_bytes_down(&b, 1, p_msg_length);
+  read_bytes_down(&a, 1, p_msg_length);
+  device_clear_color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 }
 
 //---------------------------------------------------------
-void dispatch_message( int msg_length, driver_data_t* p_data )
+void dispatch_message(int msg_length, driver_data_t *p_data)
 {
 
   // read the message id
   uint32_t msg_id;
   read_bytes_down(&msg_id, sizeof(uint32_t), &msg_length);
 
-  // put_sn( "dispatch_message:", msg_id );
-
   switch (msg_id)
   {
-    case CMD_QUIT:
-      receive_quit( p_data );
-      return;
+  case CMD_QUIT:
+    receive_quit(p_data);
+    return;
 
-    case CMD_PUT_SCRIPT:
-      put_script( &msg_length );
-      break;
+  case CMD_PUT_SCRIPT:
+    put_script(&msg_length);
+    break;
 
-    case CMD_DEL_SCRIPT:
-      delete_script( &msg_length );
-      break;
+  case CMD_DEL_SCRIPT:
+    delete_script(&msg_length);
+    break;
 
-    case CMD_RESET:
-      reset_scripts();
-      // resetting images turns out to be bad for nvg, which
-      // doesn't handle ever increasing image id ranges very well.
-      // it tries to keep a big static table of all images in mem
-      // reset_images( p_data->p_ctx );
-      break;
+  case CMD_RESET:
+    reset_scripts();
+    // resetting images turns out to be bad for nvg, which
+    // doesn't handle ever increasing image id ranges very well.
+    // it tries to keep a big static table of all images in mem
+    // reset_images( p_data->p_ctx );
+    break;
 
-    case CMD_RENDER:
-      render( p_data );
-      break;
+  case CMD_RENDER:
+    render(p_data);
+    break;
 
+  case CMD_CURSOR_TX:
+    set_cursor_tx(&msg_length, p_data);
+    break;
 
+  case CMD_UPDATE_CURSOR:
+    update_cursor(&msg_length, p_data);
+    break;
 
-    case CMD_CURSOR_TX:
-      set_cursor_tx( &msg_length, p_data );
-      break;
+  case CMD_CLEAR_COLOR:
+    clear_color(&msg_length);
+    break;
 
-    case CMD_UPDATE_CURSOR:
-      update_cursor( &msg_length, p_data );
-      break;
+  case CMD_PUT_FONT:
+    put_font(&msg_length);
+    break;
 
-    case CMD_CLEAR_COLOR:
-      clear_color( &msg_length );
-      break;
+  case CMD_PUT_IMG:
+    put_image(&msg_length);
+    break;
 
-  //   case CMD_INPUT:
-  //     receive_input(&msg_length, window);
-  //     break;
+  case CMD_CRASH:
+    receive_crash();
+    break;
 
-    case CMD_PUT_FONT:
-      put_font( &msg_length, p_data->p_ctx );
-      break;
+  case CMD_GLOBAL_TX:
+    set_global_tx(&msg_length, p_data);
+    break;
 
-    case CMD_PUT_IMG:
-      put_image( &msg_length, p_data->p_ctx );
-      break;
-
-    case CMD_CRASH:
-      receive_crash();
-      break;
-
-    case CMD_GLOBAL_TX:
-      set_global_tx( &msg_length, p_data );
-      break;
-
-    default:
-      put_sn( "Unknown message:", msg_id );
+  default:
+    put_sn("Unknown message:", msg_id);
   }
 
   // if there are any bytes left to read in the message, need to get rid of them
   // here...
   if (msg_length > 0)
   {
-    put_sn( "Excess message bytes:", msg_length );
-    put_sn( "message id:", msg_id );
-    void* p = malloc(msg_length);
+    put_sn("Excess message bytes:", msg_length);
+    put_sn("message id:", msg_id);
+    void *p = malloc(msg_length);
     read_bytes_down(p, msg_length, &msg_length);
     free(p);
   }
-
-  check_gl_error();
 
   return;
 }
@@ -748,25 +629,26 @@ uint64_t get_time_stamp()
 {
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  return tv.tv_sec * (uint64_t) 1000000 + tv.tv_usec;
+  return tv.tv_sec * (uint64_t)1000000 + tv.tv_usec;
 }
 
 // read from the stdio in buffer and act on one message. Return true
 // if we need to redraw the screen. false if we do not
-void handle_stdio_in(driver_data_t* p_data)
+void handle_stdio_in(driver_data_t *p_data)
 {
-  int64_t        time_remaining = STDIO_TIMEOUT;
-  int64_t        end_time       = get_time_stamp() + STDIO_TIMEOUT;
+  int64_t time_remaining = STDIO_TIMEOUT;
+  int64_t end_time = get_time_stamp() + STDIO_TIMEOUT;
   struct timeval tv;
-  bool           redraw = false;
+  bool redraw = false;
 
   while (time_remaining > 0)
   {
-    tv.tv_sec  = 0;
+    tv.tv_sec = 0;
     tv.tv_usec = time_remaining;
 
     int len = read_msg_length(&tv);
-    if (len <= 0) break;
+    if (len <= 0)
+      break;
 
     // process the message
     dispatch_message(len, p_data);
@@ -777,4 +659,3 @@ void handle_stdio_in(driver_data_t* p_data)
 
   return;
 }
-
